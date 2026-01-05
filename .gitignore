@@ -1,0 +1,5 @@
+
+# Never track env files
+.env
+**/.env
+
