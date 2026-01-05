@@ -95,6 +95,22 @@ type ExplanationViewModel = {
 
 ---
 
+### Differentiation – why this is different
+
+- **Structured explanation model, not just free‑form LLM text**  
+  The AI is required to return a strict JSON shape (`ExplanationViewModel`) that separates beginner‑friendly text, privacy note and developer notes. This makes the UX predictable and easy to integrate in the wallet.
+
+- **On‑chain risk registry instead of only off‑chain heuristics**  
+  A simple `RiskTagRegistry` smart contract lets Endless or trusted partners tag contracts with a risk level, label and URL. The assistant can combine this with decoded actions to surface clear risk badges.
+
+- **Emotional risk signal via Nessy + risk bar**  
+  Users don’t just see text: they see a global risk bar and a 3D mascot whose mood changes with the risk level, with one short, reassuring or warning sentence.
+
+- **First‑class developer experience**  
+  A dedicated Playground exposes the raw JSON analysis, on‑chain risk data and dev‑oriented notes so builders can debug what their users will see and iterate on their flows.
+
+---
+
 ### Roadmap (beyond the prototype)
 
 - Extend decoding (DEXs, NFTs, upgrades, L2 bridges).
