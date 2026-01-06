@@ -163,26 +163,20 @@ function getNessyGlowClasses(
   result: AnalysisResult | null,
   globalRiskLevel: RiskLevel
 ): string {
-  const noDecodedRisks =
-    !result ||
-    ((result.risks == null || result.risks.length === 0) &&
-      (!result.onchainRisk || result.onchainRisk.level === "unknown"));
-
-  if (noDecodedRisks) {
-    // Unknown / neutral state: soft grey glow
-    return "ring-2 ring-zinc-400/70 shadow-[0_0_26px_rgba(148,163,184,0.55)]";
-  }
-
   if (globalRiskLevel === "high") {
-    return "ring-2 ring-red-400/80 shadow-[0_0_32px_rgba(248,113,113,0.6)]";
+    return "ring-2 ring-red-400/90 shadow-[0_0_40px_rgba(248,113,113,0.9)]";
   }
 
   if (globalRiskLevel === "medium") {
-    return "ring-2 ring-amber-300/80 shadow-[0_0_32px_rgba(252,211,77,0.55)]";
+    return "ring-2 ring-amber-300/90 shadow-[0_0_40px_rgba(252,211,77,0.9)]";
   }
 
-  // Low risk by default: soft green glow
-  return "ring-2 ring-emerald-400/80 shadow-[0_0_30px_rgba(52,211,153,0.55)]";
+  if (globalRiskLevel === "low") {
+    return "ring-2 ring-emerald-400/90 shadow-[0_0_40px_rgba(16,185,129,0.9)]";
+  }
+
+  // Fallback / unknown: neutral grey glow
+  return "ring-2 ring-zinc-400/80 shadow-[0_0_32px_rgba(148,163,184,0.8)]";
 }
 
 function truncateText(text: string, maxLength: number): string {
