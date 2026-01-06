@@ -159,6 +159,32 @@ function getNessySignal(result: AnalysisResult | null): NessySignal | null {
   };
 }
 
+function getNessyGlowClasses(
+  result: AnalysisResult | null,
+  globalRiskLevel: RiskLevel
+): string {
+  const noDecodedRisks =
+    !result ||
+    ((result.risks == null || result.risks.length === 0) &&
+      (!result.onchainRisk || result.onchainRisk.level === "unknown"));
+
+  if (noDecodedRisks) {
+    // Unknown / neutral state: soft grey glow
+    return "ring-2 ring-zinc-400/70 shadow-[0_0_26px_rgba(148,163,184,0.55)]";
+  }
+
+  if (globalRiskLevel === "high") {
+    return "ring-2 ring-red-400/80 shadow-[0_0_32px_rgba(248,113,113,0.6)]";
+  }
+
+  if (globalRiskLevel === "medium") {
+    return "ring-2 ring-amber-300/80 shadow-[0_0_32px_rgba(252,211,77,0.55)]";
+  }
+
+  // Low risk by default: soft green glow
+  return "ring-2 ring-emerald-400/80 shadow-[0_0_30px_rgba(52,211,153,0.55)]";
+}
+
 function truncateText(text: string, maxLength: number): string {
   if (!text) return "";
   if (text.length <= maxLength) return text;
@@ -256,6 +282,7 @@ export default function Home() {
 
   const nessySignal = getNessySignal(result);
   const globalRiskLevel = getGlobalRiskLevel(result);
+  const nessyGlowClasses = getNessyGlowClasses(result, globalRiskLevel);
 
   return (
     <div className="relative flex min-h-screen items-center justify-center font-sans">
@@ -407,7 +434,9 @@ export default function Home() {
                 </div>
               ) : (
                 nessySignal && (
-                  <div className="pointer-events-none absolute -left-2 top-2 w-48 rounded-2xl bg-white/90 p-2 text-xs text-zinc-900 shadow-lg ring-1 ring-zinc-200 dark:bg-zinc-900/90 dark:text-zinc-50 dark:ring-zinc-700">
+                  <div
+                    className={`pointer-events-none absolute -left-2 top-2 w-48 rounded-2xl bg-white/90 p-2 text-xs text-zinc-900 shadow-lg dark:bg-zinc-900/90 dark:text-zinc-50 ${nessyGlowClasses}`}
+                  >
                     <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
                       Nessy says
                     </div>
