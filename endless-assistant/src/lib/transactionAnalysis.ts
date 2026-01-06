@@ -1,4 +1,4 @@
-import { Interface, MaxUint256 } from "ethers";
+import { Interface, MaxUint256, formatUnits } from "ethers";
 
 export type RiskLevel = "low" | "medium" | "high";
 
@@ -46,6 +46,21 @@ function isUnlimitedApproval(value: bigint): boolean {
   }
 }
 
+const DEFAULT_ERC20_DECIMALS = 18;
+
+function formatTokenAmount(value: bigint): string {
+  try {
+    const raw = formatUnits(value, DEFAULT_ERC20_DECIMALS);
+    // Supprimer les zéros inutiles en fin de chaîne (ex: "1.000000" -> "1")
+    if (raw.includes(".")) {
+      return raw.replace(/\.0+$/, "").replace(/(\.\d*?[1-9])0+$/, "$1");
+    }
+    return raw;
+  } catch {
+    return value.toString();
+  }
+}
+
 export function analyzeRawInput(raw: string): TransactionAnalysis {
   const actions: DecodedAction[] = [];
   const risks: Risk[] = [];
@@ -85,20 +100,28 @@ export function analyzeRawInput(raw: string): TransactionAnalysis {
 
       if (parsedTx && parsedTx.name === "transfer") {
         const [to, value] = parsedTx.args as unknown as [string, bigint];
+        const amountReadable = formatTokenAmount(value);
         actions.push({
           type: "erc20.transfer",
-          description: `Transfer of ${value.toString()} tokens to ${to}.`,
+          description: `Transfer of ${amountReadable} tokens to ${to}.`,
           severity: "info",
         });
       } else if (parsedTx && parsedTx.name === "approve") {
         const [spender, value] = parsedTx.args as unknown as [string, bigint];
+        const unlimited = isUnlimitedApproval(value);
+        const amountReadable = unlimited
+          ? "an unlimited amount of"
+          : `${formatTokenAmount(value)}`;
+
         actions.push({
           type: "erc20.approve",
-          description: `Approve ${spender} to spend up to ${value.toString()} tokens.`,
+          description: unlimited
+            ? `Approve ${spender} to spend an unlimited amount of tokens.`
+            : `Approve ${spender} to spend up to ${amountReadable} tokens.`,
           severity: "info",
         });
 
-        if (isUnlimitedApproval(value)) {
+        if (unlimited) {
           risks.push({
             type: "unlimitedApproval",
             level: "high",
@@ -107,10 +130,15 @@ export function analyzeRawInput(raw: string): TransactionAnalysis {
           });
         }
       } else if (parsedTx && parsedTx.name === "transferFrom") {
-        const [from, to, value] = parsedTx.args as unknown as [string, string, bigint];
+        const [from, to, value] = parsedTx.args as unknown as [
+          string,
+          string,
+          bigint,
+        ];
+        const amountReadable = formatTokenAmount(value);
         actions.push({
           type: "erc20.transferFrom",
-          description: `Transfer of ${value.toString()} tokens from ${from} to ${to}.`,
+          description: `Transfer of ${amountReadable} tokens from ${from} to ${to}.`,
           severity: "info",
         });
       }
