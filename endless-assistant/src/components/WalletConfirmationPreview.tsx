@@ -19,12 +19,20 @@ type BasePrivacy = {
   description: string;
 };
 
+type Explanation = {
+  userHeadline: string;
+  userBody: string;
+  userPrivacyNote: string;
+  devNotes: string;
+};
+
 type AnalysisResult = {
   input?: unknown;
   actions: BaseAction[];
   risks: BaseRisk[];
   privacy: BasePrivacy[];
   aiSummary: string;
+  explanation?: Explanation;
 };
 
 type WalletConfirmationPreviewProps = {
@@ -75,6 +83,12 @@ function getRiskVisualState(risks: BaseRisk[]) {
   };
 }
 
+function truncateText(text: string, maxLength: number): string {
+  if (!text) return "";
+  if (text.length <= maxLength) return text;
+  return text.slice(0, Math.max(0, maxLength - 1)).trimEnd() + "…";
+}
+
 export function WalletConfirmationPreview({
   result,
 }: WalletConfirmationPreviewProps) {
@@ -83,6 +97,14 @@ export function WalletConfirmationPreview({
   );
 
   const primaryAction = result.actions[0];
+
+  const rawPrivacyNote =
+    result.explanation?.userPrivacyNote ||
+    (result.privacy && result.privacy.length > 0
+      ? result.privacy[0].description
+      : result.aiSummary);
+
+  const privacyNote = truncateText(rawPrivacyNote, 180);
 
   return (
     <div className="mx-auto max-w-xl rounded-2xl border border-zinc-200 bg-zinc-50/80 p-4 text-xs text-zinc-900 shadow-lg shadow-zinc-900/5 dark:border-zinc-800 dark:bg-zinc-950/80 dark:text-zinc-50">
@@ -130,7 +152,7 @@ export function WalletConfirmationPreview({
             AI assistant note
           </div>
           <div className="rounded-lg bg-white px-3 py-2 text-[11px] leading-relaxed text-zinc-700 shadow-inner dark:bg-zinc-900 dark:text-zinc-300">
-            {result.aiSummary}
+            {privacyNote}
           </div>
         </div>
 

@@ -1,5 +1,7 @@
 ## Endless Assistant – Transaction & Privacy Copilot
 
+**Live demo:** https://endless-assistant-kype.vercel.app/
+
 ### Elevator pitch
 
 Endless Assistant is a **transaction and privacy copilot** for the Endless Wallet / Browser.
@@ -101,13 +103,28 @@ type ExplanationViewModel = {
   The AI is required to return a strict JSON shape (`ExplanationViewModel`) that separates beginner‑friendly text, privacy note and developer notes. This makes the UX predictable and easy to integrate in the wallet.
 
 - **On‑chain risk registry instead of only off‑chain heuristics**  
-  A simple `RiskTagRegistry` smart contract lets Endless or trusted partners tag contracts with a risk level, label and URL. The assistant can combine this with decoded actions to surface clear risk badges.
+  A `RiskTagRegistry` smart contract lets Endless or trusted partners tag contracts with a risk level, label and URL. The assistant can combine this with decoded actions to surface clear risk badges.
 
 - **Emotional risk signal via Nessy + risk bar**  
   Users don’t just see text: they see a global risk bar and a 3D mascot whose mood changes with the risk level, with one short, reassuring or warning sentence.
 
 - **First‑class developer experience**  
   A dedicated Playground exposes the raw JSON analysis, on‑chain risk data and dev‑oriented notes so builders can debug what their users will see and iterate on their flows.
+
+---
+
+### Alignment with the Endless Wallet Standard
+
+Endless Wallets share a common standard that combines:
+
+- Mnemonic-based accounts derived using BIP44.
+- A dapp API (`connect`, `disconnect`, `getAccount`, `getNetwork`, `signAndSubmitTransaction`, `signMessage` and wallet events).
+
+Endless Assistant sits at the **confirmation layer** of this standard:
+
+- It analyses the same JSON payload that wallets receive in `signAndSubmitTransaction` / `signMessage`, without requiring any change to dapps.
+- Any wallet that implements the Endless Wallet Standard can surface Nessy Guardian as an enriched confirmation step before signing.
+- Any dapp that already talks to an Endless-compatible wallet automatically benefits from clearer explanations and risk signals.
 
 ---
 

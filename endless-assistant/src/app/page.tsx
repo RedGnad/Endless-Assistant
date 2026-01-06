@@ -159,6 +159,12 @@ function getNessySignal(result: AnalysisResult | null): NessySignal | null {
   };
 }
 
+function truncateText(text: string, maxLength: number): string {
+  if (!text) return "";
+  if (text.length <= maxLength) return text;
+  return text.slice(0, Math.max(0, maxLength - 1)).trimEnd() + "…";
+}
+
 type StarConfig = {
   top: string;
   left: string;
@@ -347,7 +353,7 @@ export default function Home() {
 
             {result && (
               <>
-                <div className="mt-4 grid gap-4 rounded-xl border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-900 shadow-sm dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50 sm:grid-cols-2">
+                <div className="mt-4 rounded-xl border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-900 shadow-sm dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50">
                   <div className="flex flex-col gap-2">
                     <div className="flex items-center justify-between gap-2">
                       <h2 className="text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
@@ -372,12 +378,6 @@ export default function Home() {
                     <p className="text-sm font-medium leading-relaxed text-zinc-900 dark:text-zinc-50">
                       {result.explanation.userHeadline}
                     </p>
-                    <p className="text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
-                      {result.explanation.userBody}
-                    </p>
-                    <p className="text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
-                      {result.explanation.userPrivacyNote}
-                    </p>
                     {result.onchainRisk &&
                       result.onchainRisk.level !== "unknown" && (
                         <p className="text-[11px] leading-relaxed text-zinc-500 dark:text-zinc-500">
@@ -390,71 +390,12 @@ export default function Home() {
                         </p>
                       )}
                   </div>
-
-                  <div className="flex flex-col gap-3">
-                    <div>
-                      <h3 className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                        Actions
-                      </h3>
-                      <ul className="mt-1 space-y-1">
-                        {result.actions.map((action, index) => (
-                          <li
-                            key={index}
-                            className="rounded-md bg-white px-2 py-1 text-xs shadow-sm dark:bg-zinc-900"
-                          >
-                            <span className="font-semibold">
-                              {action.type}:
-                            </span>{" "}
-                            {action.description}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <div>
-                      <h3 className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                        Risks
-                      </h3>
-                      <ul className="mt-1 space-y-1">
-                        {result.risks.map((risk, index) => (
-                          <li
-                            key={index}
-                            className="flex items-start gap-2 rounded-md bg-white px-2 py-1 text-xs shadow-sm dark:bg-zinc-900"
-                          >
-                            <span className="mt-0.5 inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-red-700 dark:bg-red-900 dark:text-red-200">
-                              {typeof risk.level === "string"
-                                ? risk.level
-                                : String(risk.level)}
-                            </span>
-                            <span>
-                              <span className="font-semibold">
-                                {risk.type}:
-                              </span>{" "}
-                              {risk.description}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <div>
-                      <h3 className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                        Privacy
-                      </h3>
-                      <ul className="mt-1 space-y-1">
-                        {result.privacy.map((item, index) => (
-                          <li
-                            key={index}
-                            className="rounded-md bg-white px-2 py-1 text-xs shadow-sm dark:bg-zinc-900"
-                          >
-                            <span className="font-semibold">{item.type}:</span>{" "}
-                            {item.description}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
                 </div>
+
+                <p className="mt-2 text-[11px] leading-relaxed text-zinc-500 dark:text-zinc-500">
+                  For a full breakdown of actions, risks and privacy signals,
+                  open the Developer Playground (top-right).
+                </p>
 
                 <div className="mt-6">
                   <WalletConfirmationPreview
