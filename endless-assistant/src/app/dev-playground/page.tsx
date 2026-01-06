@@ -31,6 +31,7 @@ type Explanation = {
   userBody: string;
   userPrivacyNote: string;
   devNotes: string;
+  source?: "openai" | "rule-based";
 };
 
 type OnchainRiskLevel = "unknown" | "low" | "medium" | "high";

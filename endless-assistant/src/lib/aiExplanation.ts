@@ -81,8 +81,10 @@ export async function generateExplanation(
   const apiKey = process.env.OPENAI_API_KEY;
 
   if (!apiKey) {
-    // Fallback entièrement déterministe si la clé n’est pas configurée.
-    return buildRuleBasedExplanation(raw, analysis);
+    console.error(
+      "[aiExplanation] Missing OPENAI_API_KEY – strict mode, refusing to fallback.",
+    );
+    throw new Error("Missing OPENAI_API_KEY for AI explanation.");
   }
 
   const systemPrompt =
@@ -126,7 +128,13 @@ export async function generateExplanation(
     });
 
     if (!response.ok) {
-      return buildRuleBasedExplanation(raw, analysis);
+      const errorText = await response.text().catch(() => "");
+      console.error(
+        "[aiExplanation] OpenAI HTTP error",
+        response.status,
+        errorText,
+      );
+      throw new Error(`OpenAI API error: ${response.status}`);
     }
 
     const data = (await response.json()) as {
@@ -137,14 +145,23 @@ export async function generateExplanation(
 
     const content = data.choices?.[0]?.message?.content;
     if (typeof content !== "string" || !content.trim()) {
-      return buildRuleBasedExplanation(raw, analysis);
+      console.error(
+        "[aiExplanation] Invalid OpenAI response, missing content",
+        JSON.stringify(data),
+      );
+      throw new Error("Invalid OpenAI response content.");
     }
 
     let parsed: unknown;
     try {
       parsed = JSON.parse(content);
-    } catch {
-      return buildRuleBasedExplanation(raw, analysis);
+    } catch (err) {
+      console.error(
+        "[aiExplanation] Failed to parse OpenAI JSON content",
+        err,
+        content,
+      );
+      throw new Error("Failed to parse OpenAI explanation JSON.");
     }
 
     const obj = parsed as Partial<{
@@ -154,33 +171,40 @@ export async function generateExplanation(
       devNotes: string;
     }>;
 
-    if (!obj || typeof obj !== "object") {
-      return buildRuleBasedExplanation(raw, analysis);
+    if (
+      !obj ||
+      typeof obj !== "object" ||
+      typeof obj.userHeadline !== "string" ||
+      typeof obj.userBody !== "string" ||
+      typeof obj.userPrivacyNote !== "string" ||
+      typeof obj.devNotes !== "string"
+    ) {
+      console.error(
+        "[aiExplanation] OpenAI JSON missing required fields",
+        obj,
+      );
+      throw new Error("OpenAI explanation JSON missing required fields.");
     }
 
-    const fallback = buildRuleBasedExplanation(raw, analysis);
-
-    return {
-      userHeadline:
-        typeof obj.userHeadline === "string" && obj.userHeadline.trim()
-          ? obj.userHeadline.trim()
-          : fallback.userHeadline,
-      userBody:
-        typeof obj.userBody === "string" && obj.userBody.trim()
-          ? obj.userBody.trim()
-          : fallback.userBody,
-      userPrivacyNote:
-        typeof obj.userPrivacyNote === "string" && obj.userPrivacyNote.trim()
-          ? obj.userPrivacyNote.trim()
-          : fallback.userPrivacyNote,
-      devNotes:
-        typeof obj.devNotes === "string" && obj.devNotes.trim()
-          ? obj.devNotes.trim()
-          : fallback.devNotes,
+    const explanation: ExplanationWithSource = {
+      userHeadline: obj.userHeadline.trim(),
+      userBody: obj.userBody.trim(),
+      userPrivacyNote: obj.userPrivacyNote.trim(),
+      devNotes: obj.devNotes.trim(),
       source: "openai",
     };
-  } catch {
-    return buildRuleBasedExplanation(raw, analysis);
+
+    console.log(
+      "[aiExplanation] Generated explanation via OpenAI",
+      explanation.userHeadline,
+    );
+
+    return explanation;
+  } catch (err) {
+    console.error("[aiExplanation] Unexpected error in generateExplanation", err);
+    throw err instanceof Error
+      ? err
+      : new Error("Unknown AI explanation error");
   }
 }
 

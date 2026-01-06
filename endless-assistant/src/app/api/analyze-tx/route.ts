@@ -13,17 +13,27 @@ export async function POST(req: NextRequest) {
 
   const analysis = analyzeRawInput(raw);
   const onchainRisk = await fetchOnchainRisk(analysis.targetContract);
-  const explanation = await generateExplanation(raw, analysis);
+  try {
+    const explanation = await generateExplanation(raw, analysis);
 
-  return NextResponse.json({
-    input: raw,
-    actions: analysis.actions,
-    risks: analysis.risks,
-    privacy: analysis.privacy,
-    developerHints: analysis.developerHints,
-    onchainRisk,
-    explanation,
-    // Compatibilité avec le front existant : champ string simple basé sur l’explication structurée.
-    aiSummary: explanation.userBody,
-  });
+    console.log("[api/analyze-tx] Explanation source", explanation.source);
+
+    return NextResponse.json({
+      input: raw,
+      actions: analysis.actions,
+      risks: analysis.risks,
+      privacy: analysis.privacy,
+      developerHints: analysis.developerHints,
+      onchainRisk,
+      explanation,
+      // Compatibilité avec le front existant : champ string simple basé sur l’explication structurée.
+      aiSummary: explanation.userBody,
+    });
+  } catch (err) {
+    console.error("[api/analyze-tx] Failed to generate AI explanation", err);
+    return NextResponse.json(
+      { error: "Failed to generate AI explanation. Check server logs." },
+      { status: 500 },
+    );
+  }
 }
