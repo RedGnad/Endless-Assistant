@@ -98,6 +98,10 @@ export function WalletConfirmationPreview({
 
   const primaryAction = result.actions[0];
 
+  const primaryDescription = primaryAction
+    ? truncateText(primaryAction.description, 160)
+    : "";
+
   const rawPrivacyNote =
     result.explanation?.userPrivacyNote ||
     (result.privacy && result.privacy.length > 0
@@ -119,12 +123,12 @@ export function WalletConfirmationPreview({
               Transaction review
             </span>
           </div>
+          <span
+            className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${badgeClass}`}
+          >
+            {label}
+          </span>
         </div>
-        <span
-          className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${badgeClass}`}
-        >
-          {label}
-        </span>
       </div>
 
       <div className="mt-3 flex flex-col gap-3">
@@ -137,7 +141,7 @@ export function WalletConfirmationPreview({
               <span className="font-semibold">{primaryAction.type}</span>
               <span className="mx-1 text-zinc-400">·</span>
               <span className="text-zinc-700 dark:text-zinc-300">
-                {primaryAction.description}
+                {primaryDescription}
               </span>
             </div>
           ) : (

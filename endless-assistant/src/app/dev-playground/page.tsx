@@ -158,9 +158,6 @@ export default function DevPlaygroundPage() {
                     {result.explanation.userHeadline}
                   </p>
                   <p>{result.explanation.userBody}</p>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                    {result.explanation.userPrivacyNote}
-                  </p>
                 </div>
               ) : (
                 <p className="mt-2 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
@@ -168,17 +165,6 @@ export default function DevPlaygroundPage() {
                   end user.
                 </p>
               )}
-            </div>
-
-            <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-              <h2 className="text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-                Developer notes (AI explanation for builders)
-              </h2>
-              <p className="mt-2 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
-                {result
-                  ? result.explanation.devNotes || result.aiSummary
-                  : "Run an analysis to see implementation notes and a more detailed AI explanation for builders here."}
-              </p>
             </div>
 
             <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">

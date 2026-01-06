@@ -359,21 +359,6 @@ export default function Home() {
                       <h2 className="text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
                         Endless explains
                       </h2>
-                      <span
-                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
-                          globalRiskLevel === "high"
-                            ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"
-                            : globalRiskLevel === "medium"
-                            ? "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-100"
-                            : "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-100"
-                        }`}
-                      >
-                        {globalRiskLevel === "high"
-                          ? "High risk"
-                          : globalRiskLevel === "medium"
-                          ? "Medium risk"
-                          : "Low risk"}
-                      </span>
                     </div>
                     <p className="text-sm font-medium leading-relaxed text-zinc-900 dark:text-zinc-50">
                       {result.explanation.userHeadline}
