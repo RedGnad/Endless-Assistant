@@ -9,6 +9,12 @@ export type ExplanationViewModel = {
   devNotes: string;
 };
 
+export type ExplanationSource = "openai" | "rule-based";
+
+export type ExplanationWithSource = ExplanationViewModel & {
+  source: ExplanationSource;
+};
+
 function buildRuleBasedSummary(raw: string, analysis: TransactionAnalysis): string {
   if (!raw.trim()) {
     return "No input was provided. To analyze a transaction, please paste calldata or a JSON object containing a `data` field.";
@@ -44,7 +50,7 @@ function buildRuleBasedSummary(raw: string, analysis: TransactionAnalysis): stri
 function buildRuleBasedExplanation(
   raw: string,
   analysis: TransactionAnalysis,
-): ExplanationViewModel {
+): ExplanationWithSource {
   const summary = buildRuleBasedSummary(raw, analysis);
 
   // Découper grossièrement en titre + corps en se basant sur le premier point.
@@ -60,16 +66,18 @@ function buildRuleBasedExplanation(
   return {
     userHeadline,
     userBody,
-    userPrivacyNote: privacyNote ||
+    userPrivacyNote:
+      privacyNote ||
       "This transaction will be recorded on-chain. Anyone can see the addresses involved, amounts, and function called.",
     devNotes: summary,
+    source: "rule-based",
   };
 }
 
 export async function generateExplanation(
   raw: string,
   analysis: TransactionAnalysis,
-): Promise<ExplanationViewModel> {
+): Promise<ExplanationWithSource> {
   const apiKey = process.env.OPENAI_API_KEY;
 
   if (!apiKey) {
@@ -169,6 +177,7 @@ export async function generateExplanation(
         typeof obj.devNotes === "string" && obj.devNotes.trim()
           ? obj.devNotes.trim()
           : fallback.devNotes,
+      source: "openai",
     };
   } catch {
     return buildRuleBasedExplanation(raw, analysis);
